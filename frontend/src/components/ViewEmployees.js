@@ -115,15 +115,10 @@ const ViewEmployees = () => {
     try {
       const response = await axios.get("http://localhost:5000/employees/full");
       const formattedData = response.data.map((emp) => ({
-        ...emp,
-        EID: emp.EID.toString(),
-        DOB: formatDateForDisplay(emp.DOB),
-        DATE_OF_JOIN: formatDateForDisplay(emp.DATE_OF_JOIN),
-        PPROFEXP_FROM: formatDateForDisplay(emp.PPROFEXP_FROM),
-        PPROFEXP_TO: formatDateForDisplay(emp.PPROFEXP_TO),
-        F_DOB: formatDateForDisplay(emp.F_DOB),
-        M_DOB: formatDateForDisplay(emp.M_DOB)
-      }));
+  ...emp,
+  EID: emp.EID.toString()
+}));
+
       setEmployees(formattedData);
       setFilteredEmployees(formattedData);
     } catch (error) {
@@ -164,14 +159,15 @@ const ViewEmployees = () => {
   const handleModifyClick = (employee) => {
     setEditRow(employee);
     setEditData({
-      ...employee,
-      DOB: employee.DOB || "",
-      DATE_OF_JOIN: employee.DATE_OF_JOIN || "",
-      PPROFEXP_FROM: employee.PPROFEXP_FROM || "",
-      PPROFEXP_TO: employee.PPROFEXP_TO || "",
-      F_DOB: employee.F_DOB || "",
-      M_DOB: employee.M_DOB || ""
-    });
+  ...employee,
+  DOB: formatDateForDB(employee.DOB),
+  DATE_OF_JOIN: formatDateForDB(employee.DATE_OF_JOIN),
+  PPROFEXP_FROM: formatDateForDB(employee.PPROFEXP_FROM),
+  PPROFEXP_TO: formatDateForDB(employee.PPROFEXP_TO),
+  F_DOB: formatDateForDB(employee.F_DOB),
+  M_DOB: formatDateForDB(employee.M_DOB)
+});
+
   };
 
   const handleInputChange = (e) => {
@@ -292,9 +288,12 @@ const ViewEmployees = () => {
                 {Object.keys(columns).map((col) => 
                   columns[col] && (
                     <td key={col}>
-                      {employee[col] === null || employee[col] === undefined || employee[col] === '' 
-                        ? "N/A" 
-                        : employee[col]}
+                      {employee[col] === null || employee[col] === undefined || employee[col] === ''
+  ? "N/A"
+  : (col.includes("DOB") || col.includes("DATE") || col.includes("FROM") || col.includes("TO")
+      ? formatDateForDisplay(employee[col])
+      : employee[col])}
+
                     </td>
                   )
                 )}

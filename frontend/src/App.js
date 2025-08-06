@@ -5,6 +5,10 @@ import AddEmployee from './components/AddEmployee';
 import ViewEmployees from './components/ViewEmployees';
 import AddDepartment from './components/AddDepartment';
 import ViewDepartments from './components/ViewDepartments';
+import FacultyPasswordReset from './FacultyPasswordReset';
+import FacultyDashboard from './FacultyDashboard';
+import FacultyHome from './FacultyHome';
+
 
 function App() {
   return (
@@ -16,6 +20,11 @@ function App() {
         <Route path="/view-employees" element={<ViewEmployees />} />
         <Route path="/add-department" element={<AddDepartment />} />
         <Route path="/view-departments" element={<ViewDepartments />} />
+        <Route path="/faculty-reset-password" element={<FacultyPasswordReset />} />
+        <Route path="/faculty-dashboard/:eid" element={<FacultyDashboard />} />
+        <Route path="/faculty-home" element={<FacultyHome />} />
+
+
       </Routes>
     </BrowserRouter>
   );

@@ -268,3 +268,88 @@ app.put('/department/:did', async (req, res) => {
 app.listen(5000, () => {
   console.log('✅ Server running at http://localhost:5000');
 });
+
+// Faculty login route
+app.post('/faculty-login', async (req, res) => {
+  const { eid, password } = req.body;
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM employee_master WHERE EID = ? AND PASSWORD = ?',
+      [eid, password]
+    );
+    if (rows.length > 0) {
+      res.json({ success: true, faculty: rows[0] });
+    } else {
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+  } catch (err) {
+    console.error('Faculty login error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+// Faculty Password Reset
+
+app.post('/faculty-update-password', async (req, res) => {
+  const { eid, oldPassword, newPassword } = req.body;
+
+  try {
+    const [rows] = await pool.execute('SELECT PASSWORD FROM employee_master WHERE EID = ?', [eid]);
+
+    if (rows.length === 0) {
+      return res.json({ success: false, message: 'Faculty not found' });
+    }
+
+    if (rows[0].PASSWORD !== oldPassword) {
+      return res.json({ success: false, message: 'Incorrect current password' });
+    }
+
+    await pool.execute('UPDATE employee_master SET PASSWORD = ? WHERE EID = ?', [newPassword, eid]);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// In server.js or routes file
+app.post('/faculty-update-password', async (req, res) => {
+  const { eid, oldPassword, newPassword } = req.body;
+
+  try {
+    const [rows] = await pool.execute('SELECT PASSWORD FROM employee_master WHERE EID = ?', [eid]);
+
+    if (rows.length === 0) {
+      return res.json({ success: false, message: 'Faculty not found' });
+    }
+
+    if (rows[0].PASSWORD !== oldPassword) {
+      return res.json({ success: false, message: 'Incorrect current password' });
+    }
+
+    await pool.execute('UPDATE employee_master SET PASSWORD = ? WHERE EID = ?', [newPassword, eid]);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// backend/index.js
+app.post('/faculty-login', async (req, res) => {
+  const { eid, password } = req.body;
+
+  try {
+    const [rows] = await pool.execute('SELECT * FROM employee_master WHERE EID = ? AND PASSWORD = ?', [eid, password]);
+
+    if (rows.length > 0) {
+      res.json({ success: true, faculty: rows[0] }); // Include faculty details
+    } else {
+      res.json({ success: false });
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ success: false });
+  }
+});

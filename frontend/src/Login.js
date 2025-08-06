@@ -1,43 +1,70 @@
-// frontend/src/Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // ✅ Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 function Login() {
+  const [role, setRole] = useState('HR');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // ✅ Initialize navigation
+  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+ const handleLogin = async (e) => {
+  e.preventDefault();
 
-    try {
+  try {
+    if (role === 'HR') {
       const response = await axios.post('http://localhost:5000/login', {
         userId,
         password
       });
 
       if (response.data.success) {
-        setMessage('✅ Login successful!');
-        setTimeout(() => {
-          navigate('/hr-dashboard'); // ✅ Redirect to HR dashboard
-        }, 1000); // Add slight delay for user to see the message
+        setMessage('✅ HR login successful!');
+        setTimeout(() => navigate('/hr-dashboard'), 1000);
       } else {
-        setMessage('❌ Invalid credentials');
+        setMessage('❌ Invalid HR credentials');
       }
-    } catch (err) {
-      setMessage('⚠️ Server error. Try again.');
+
+    } else {
+      const response = await axios.post('http://localhost:5000/faculty-login', {
+        eid: userId,
+        password
+      });
+
+      if (response.data.success) {
+        setMessage('✅ Faculty login successful!');
+        
+        // 👇👇 Navigate to faculty-home and pass the data
+        setTimeout(() => {
+          navigate('/faculty-home', {
+            state: { facultyData: response.data.faculty }
+          });
+        }, 1000);
+      } else {
+        setMessage('❌ Invalid Faculty credentials');
+      }
     }
-  };
+
+  } catch (err) {
+    setMessage('⚠ Server error. Try again.');
+  }
+};
 
   return (
     <div className="login-container">
       <h2>HRMS Login</h2>
       <form onSubmit={handleLogin}>
         <div>
-          <label>User ID:</label>
+          <label>Role:</label>
+          <select value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="HR">HR</option>
+            <option value="Faculty">Faculty</option>
+          </select>
+        </div>
+        <div>
+          <label>{role === 'HR' ? 'User ID:' : 'Faculty ID (EID):'}</label>
           <input
             type="text"
             value={userId}
@@ -56,6 +83,7 @@ function Login() {
         </div>
         <button type="submit">Login</button>
       </form>
+
       <p>{message}</p>
     </div>
   );
