@@ -1,4 +1,3 @@
-// frontend/src/components/HRDashboard.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HRDashboard.css';
@@ -14,6 +13,10 @@ const HRDashboard = () => {
         <button onClick={() => navigate('/view-employees')}>View Employees</button>
         <button onClick={() => navigate('/add-department')}>Add Department</button>
         <button onClick={() => navigate('/view-departments')}>View Departments</button>
+        <button onClick={() => navigate('/add-salary')}>Add Salary</button>
+        <button onClick={() => navigate('/view-salary')}>View Salary </button>
+        <button onClick={() => navigate('/assign-leave')}>Assign Leave</button>
+        <button onClick={() => navigate('/hr/view-leave')}>View Leave</button>  
       </div>
     </div>
   );

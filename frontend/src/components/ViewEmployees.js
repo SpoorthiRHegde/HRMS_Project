@@ -87,14 +87,25 @@ const ViewEmployees = () => {
   // Format date for display (YYYY-MM-DD to DD-MM-YYYY)
   const formatDateForDisplay = (dateString) => {
     if (!dateString) return "N/A";
-    const [year, month, day] = dateString.split("-");
+    if (dateString.includes('T')) {
+    const datePart = dateString.split('T')[0];
+    const [year, month, day] = datePart.split('-');
     return `${day}-${month}-${year}`;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    const [year, month, day] = dateString.split('-');
+    return `${day}-${month}-${year}`;
+  }
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateString)) {
+    return dateString;
+  }
+  
+  return dateString; 
   };
 
   // Format date for database (DD-MM-YYYY to YYYY-MM-DD)
   const formatDateForDB = (dateString) => {
-  if (!dateString) return "";
-
+    if (!dateString) return "";
   // If already in YYYY-MM-DD format, return as is
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
     return dateString;
@@ -102,8 +113,17 @@ const ViewEmployees = () => {
 
   // If in DD-MM-YYYY format, convert to YYYY-MM-DD
   if (/^\d{2}-\d{2}-\d{4}$/.test(dateString)) {
-    const [day, month, year] = dateString.split("-");
+    const [day, month, year] = dateString.split('-');
     return `${year}-${month}-${day}`;
+  }
+  if (dateString instanceof Date || typeof dateString === 'string') {
+    const date = new Date(dateString);
+    if (!isNaN(date)) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
   }
 
   console.warn("Unexpected date format:", dateString);
@@ -116,7 +136,13 @@ const ViewEmployees = () => {
       const response = await axios.get("http://localhost:5000/employees/full");
       const formattedData = response.data.map((emp) => ({
   ...emp,
-  EID: emp.EID.toString()
+    EID: emp.EID.toString(),
+    DOB: formatDateForDisplay(emp.DOB),
+    DATE_OF_JOIN: formatDateForDisplay(emp.DATE_OF_JOIN),
+    PPROFEXP_FROM: formatDateForDisplay(emp.PPROFEXP_FROM),
+    PPROFEXP_TO: formatDateForDisplay(emp.PPROFEXP_TO),
+    F_DOB:formatDateForDisplay(emp.F_DOB),
+    M_DOB:formatDateForDisplay(emp.M_DOB)
 }));
 
       setEmployees(formattedData);
@@ -159,13 +185,25 @@ const ViewEmployees = () => {
   const handleModifyClick = (employee) => {
     setEditRow(employee);
     setEditData({
-  ...employee,
-  DOB: formatDateForDB(employee.DOB),
-  DATE_OF_JOIN: formatDateForDB(employee.DATE_OF_JOIN),
-  PPROFEXP_FROM: formatDateForDB(employee.PPROFEXP_FROM),
-  PPROFEXP_TO: formatDateForDB(employee.PPROFEXP_TO),
-  F_DOB: formatDateForDB(employee.F_DOB),
-  M_DOB: formatDateForDB(employee.M_DOB)
+        ...employee,
+        DOB: employee.DOB.includes('-') ? 
+         employee.DOB.split('-').reverse().join('-') : 
+         employee.DOB,
+      DATE_OF_JOIN: employee.DATE_OF_JOIN.includes('-') ? 
+                 employee.DATE_OF_JOIN.split('-').reverse().join('-') : 
+                 employee.DATE_OF_JOIN,
+    PPROFEXP_FROM: employee.PPROFEXP_FROM.includes('-') ? 
+                  employee.PPROFEXP_FROM.split('-').reverse().join('-') : 
+                  employee.PPROFEXP_FROM,
+    PPROFEXP_TO: employee.PPROFEXP_TO.includes('-') ? 
+                employee.PPROFEXP_TO.split('-').reverse().join('-') : 
+                employee.PPROFEXP_TO,
+    F_DOB: employee.F_DOB.includes('-') ? 
+          employee.F_DOB.split('-').reverse().join('-') : 
+          employee.F_DOB,
+    M_DOB: employee.M_DOB.includes('-') ? 
+          employee.M_DOB.split('-').reverse().join('-') : 
+          employee.M_DOB
 });
 
   };
